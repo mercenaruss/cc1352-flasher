@@ -217,7 +217,16 @@ class CommandInterface(object):
 
         self.sp.open()
 
-    def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False):
+    def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False, send_break=False):
+        if send_break:
+            # Use send_break on BeagleConnect Freedom to trigger BSL
+            to = self.sp.timeout
+            self.sp.timeout = .1
+            self.sp.send_break()
+            self.sp.read(100)
+            self.sp.timeout = to
+            return
+
         # Use the DTR and RTS lines to control bootloader and the !RESET pin.
         # This can automatically invoke the bootloader without the user
         # having to toggle any pins.
@@ -1047,8 +1056,10 @@ def print_version():
 
 
 def usage():
-    print("""Usage: %s [-DhqVfewvr] [-l length] [-p port] [-b baud] [-a addr] \
-    [-i addr] [--bootloader-active-high] [--bootloader-invert-lines] [--bootloader-sonoff-usb] [file.bin]
+    print("""Usage: %s [-DhqVfewvr] [-l length] [-p port] [-b baud] [-a addr]
+    [-i addr] [--bootloader-active-high] [--bootloader-invert-lines]
+    [--bootloader-sonoff-usb] [--bootloader-send-break]
+    [file.bin]
     -h, --help                   This help
     -q                           Quiet
     -V                           Verbose
@@ -1072,6 +1083,7 @@ def usage():
     --bootloader-active-high     Use active high signals to enter bootloader
     --bootloader-invert-lines    Inverts the use of RTS and DTR to enter bootloader
     --bootloader-sonoff-usb      Toggles RTS and DTR in the correct pattern for Sonoff USB dongle
+    --bootloader-send-break      Use break signal to enter bootloader
     -D, --disable-bootloader     After finishing, disable the bootloader
     --version                    Print script version
 
@@ -1101,10 +1113,9 @@ if __name__ == "__main__":
             'bootloader_active_high': False,
             'bootloader_invert_lines': False,
             'bootloader_sonoff_usb':False,
+            'bootloader_send_break': False,
             'disable-bootloader': 0
         }
-
-# http://www.python.org/doc/2.5.2/lib/module-getopt.html
 
     try:
         opts, args = getopt.getopt(sys.argv[1:],
@@ -1114,7 +1125,9 @@ if __name__ == "__main__":
                                     'disable-bootloader',
                                     'bootloader-active-high',
                                     'bootloader-invert-lines',
-                                    'bootloader-sonoff-usb', 'version'])
+                                    'bootloader-sonoff-usb',
+                                    'bootloader-send-break',
+                                    'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
         print(str(err))  # will print something like "option -a not recognized"
@@ -1160,6 +1173,8 @@ if __name__ == "__main__":
             conf['bootloader_invert_lines'] = True
         elif o == '--bootloader-sonoff-usb':
             conf['bootloader_sonoff_usb'] = True
+        elif o == '--bootloader-send-break':
+            conf['bootlader-send-break'] = True
         elif o == '-D' or o == '--disable-bootloader':
             conf['disable-bootloader'] = 1
         elif o == '--version':
@@ -1222,7 +1237,8 @@ if __name__ == "__main__":
         cmd.open(conf['port'], conf['baud'])
         cmd.invoke_bootloader(conf['bootloader_active_high'],
                               conf['bootloader_invert_lines'],
-                              conf['bootloader_sonoff_usb'])
+                              conf['bootloader_sonoff_usb']),
+                              conf['bootloader_send_break'])
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
