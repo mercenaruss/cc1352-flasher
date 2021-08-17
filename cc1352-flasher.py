@@ -1202,7 +1202,7 @@ if __name__ == "__main__":
         }
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],
+        opts, args = getopt.gnu_getopt(sys.argv[1:],
                                    "DhqVfeE:wWvrp:b:a:l:i:",
                                    ['help', 'ieee-address=','erase-write=',
                                     'erase-page=',
