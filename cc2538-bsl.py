@@ -1091,7 +1091,7 @@ if __name__ == "__main__":
         opts, args = getopt.gnu_getopt(sys.argv[1:],
                                    "DhqVfeE:wvrp:b:a:l:i:",
                                    ['help', 'ieee-address=','erase-page=',
-                                    '--append=',
+                                    'append=',
                                     'disable-bootloader',
                                     'bootloader-active-high',
                                     'bootloader-invert-lines',
