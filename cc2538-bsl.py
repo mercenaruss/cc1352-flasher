@@ -1124,7 +1124,7 @@ if __name__ == "__main__":
                                    "DhqVfeE:wWvrp:b:a:l:i:",
                                    ['help', 'ieee-address=','erase-write=',
                                     'erase-page=',
-                                    '--append=',
+                                    'append=',
                                     'disable-bootloader',
                                     'bootloader-active-high',
                                     'bootloader-invert-lines',
