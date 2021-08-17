@@ -1088,7 +1088,7 @@ if __name__ == "__main__":
 # http://www.python.org/doc/2.5.2/lib/module-getopt.html
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:],
+        opts, args = getopt.gnu_getopt(sys.argv[1:],
                                    "DhqVfeE:wvrp:b:a:l:i:",
                                    ['help', 'ieee-address=','erase-page=',
                                     '--append=',
