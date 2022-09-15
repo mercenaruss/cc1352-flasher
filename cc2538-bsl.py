@@ -855,6 +855,8 @@ class CC26xx(Chip):
         protocols = user_id[1] >> 4
 
         # We can now detect the exact device
+        print("pg_rev = %0x, protocols = %0x, wafer_id = 0x%04x" % (pg_rev, protocols, wafer_id))
+
         if wafer_id == 0xB99A:
             chip = self._identify_cc26xx(pg_rev, protocols)
         elif wafer_id == 0xB9BE:
@@ -943,6 +945,8 @@ class CC26xx(Chip):
             if rev_minor == 0xFF:
                 rev_minor = 0x00
             pg_str = "PG2.%d" % (rev_minor,)
+        else:
+            pg_str = "PG1.0"
 
         return "%s %s" % (chip_str, pg_str)
 
