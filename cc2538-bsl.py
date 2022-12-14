@@ -220,6 +220,7 @@ class CommandInterface(object):
     def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False, send_break=False):
         if send_break:
             # Use send_break on BeagleConnect Freedom to trigger BSL
+            print("Sending break")
             to = self.sp.timeout
             self.sp.timeout = .1
             self.sp.send_break()
@@ -864,6 +865,10 @@ class CC26xx(Chip):
         elif wafer_id == 0xBB41:
             chip = self._identify_cc13xx(pg_rev, protocols)
             self.page_size = 8192
+        elif wafer_id == 0xBB77:
+            # CC1352P7
+            chip = self._identify_cc13xx(pg_rev, protocols)
+            self.page_size = 8192
         else:
             # CC1352P7 TRM (https://www.ti.com/lit/pdf/swcu192) does not specify the SEQUENCE
             # in table 11-59, so I need an actual device to test it
@@ -933,12 +938,14 @@ class CC26xx(Chip):
         return "%s %s" % (chip_str, pg_str)
 
     def _identify_cc13xx(self, pg, protocols):
-        chip_str = "CC1310"
+        chip_str = "CC131x"
         if protocols & CC26xx.PROTO_MASK_IEEE == CC26xx.PROTO_MASK_IEEE:
-            chip_str = "CC1350"
+            chip_str = "CC135x"
 
         if pg == 0:
             pg_str = "PG1.0"
+        if pg == 1:
+            pg_str = "PG1.1"
         elif pg == 2 or pg == 3:
             rev_minor = self.command_interface.cmdMemReadCC26xx(
                                                 CC26xx.MISC_CONF_1)[0]
@@ -1189,7 +1196,8 @@ if __name__ == "__main__":
         elif o == '--bootloader-sonoff-usb':
             conf['bootloader_sonoff_usb'] = True
         elif o == '--bootloader-send-break':
-            conf['bootlader-send-break'] = True
+            print("Got send break")
+            conf['bootloader_send_break'] = True
         elif o == '-D' or o == '--disable-bootloader':
             conf['disable-bootloader'] = 1
         elif o == '-E' or o == '--erase-page':
@@ -1257,10 +1265,10 @@ if __name__ == "__main__":
 
         cmd = CommandInterface()
         cmd.open(conf['port'], conf['baud'])
-        cmd.invoke_bootloader(conf['bootloader_active_high'],
-                              conf['bootloader_invert_lines'],
-                              conf['bootloader_sonoff_usb']),
-                              conf['bootloader_send_break'])
+        cmd.invoke_bootloader(dtr_active_high=conf['bootloader_active_high'],
+                              inverted=conf['bootloader_invert_lines'],
+                              sonoff_usb=conf['bootloader_sonoff_usb'],
+                              send_break=conf['bootloader_send_break'])
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
