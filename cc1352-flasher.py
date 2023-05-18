@@ -1272,8 +1272,8 @@ if __name__ == "__main__":
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
-            mdebug(5, "Reading data from %s" % args[0])
-            firmware = FirmwareFile(args[0])
+            mdebug(5, "Reading data from %s" % conf['fname'])
+            firmware = FirmwareFile(conf['fname'])
 
         mdebug(5, "Connecting to target...")
 
