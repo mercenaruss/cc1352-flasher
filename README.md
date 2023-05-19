@@ -1,3 +1,6 @@
+Before finalizing this fork, this commit needs to include moving to git.beagleboard.org CI.
+
+
 TI CC13xx/CC2538/CC26xx Serial Boot Loader [![Build Status](https://travis-ci.org/JelmerT/cc2538-bsl.svg?branch=master)](https://travis-ci.org/JelmerT/cc2538-bsl)
 ==========================================
 
