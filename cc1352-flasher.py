@@ -1101,6 +1101,7 @@ def usage():
     --bootloader-invert-lines    Inverts the use of RTS and DTR to enter bootloader
     --bootloader-sonoff-usb      Toggles RTS and DTR in the correct pattern for Sonoff USB dongle
     --bootloader-send-break      Use break signal to enter bootloader
+    --bcf                        Quick defaults for BeagleConnect Freedom Zephyr images
     -D, --disable-bootloader     After finishing, disable the bootloader
     --version                    Print script version
 
@@ -1146,6 +1147,7 @@ if __name__ == "__main__":
                                     'bootloader-invert-lines',
                                     'bootloader-sonoff-usb',
                                     'bootloader-send-break',
+                                    'bcf',
                                     'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -1200,6 +1202,12 @@ if __name__ == "__main__":
             conf['disable-bootloader'] = 1
         elif o == '-E' or o == '--erase-page':
             conf['erase_page'] = str(a)
+        elif o == '--bcf':
+            conf['erase'] = 1
+            conf['write'] = 1
+            conf['verify'] = 1
+            conf['append'] = '/zephyr/zephyr.bin'
+            conf['bootloader_send_break'] = True
         elif o == '--version':
             print_version()
             sys.exit(0)
