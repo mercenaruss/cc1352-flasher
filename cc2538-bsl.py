@@ -1075,7 +1075,7 @@ def usage():
     print("""Usage: %s [-DhqVfewvr] [-l length] [-p port] [-b baud] [-a addr]
     [-i addr] [--bootloader-active-high] [--bootloader-invert-lines]
     [--bootloader-sonoff-usb] [--bootloader-send-break]
-    [file.bin]
+    [--append .ext] [file.bin]
     -h, --help                   This help
     -q                           Quiet
     -V                           Verbose
@@ -1095,6 +1095,7 @@ def usage():
     -p port                      Serial port (default: first USB-like port in /dev)
     -b baud                      Baud speed (default: 500000)
     -a addr                      Target address
+    --append ext                 Add string to the end of the filename
     -i, --ieee-address addr      Set the secondary 64 bit IEEE address
     --bootloader-active-high     Use active high signals to enter bootloader
     --bootloader-invert-lines    Inverts the use of RTS and DTR to enter bootloader
@@ -1125,6 +1126,7 @@ if __name__ == "__main__":
             'read': 0,
             'len': 0x80000,
             'fname': '',
+            'append': '',
             'ieee_address': 0,
             'bootloader_active_high': False,
             'bootloader_invert_lines': False,
@@ -1138,6 +1140,7 @@ if __name__ == "__main__":
                                    "DhqVfeE:wWvrp:b:a:l:i:",
                                    ['help', 'ieee-address=','erase-write=',
                                     'erase-page=',
+                                    'append=',
                                     'disable-bootloader',
                                     'bootloader-active-high',
                                     'bootloader-invert-lines',
@@ -1158,6 +1161,8 @@ if __name__ == "__main__":
         elif o == '-h' or o == '--help':
             usage()
             sys.exit(0)
+        elif o == '--append':
+            conf['append'] = str(a)
         elif o == '-f':
             conf['force'] = 1
         elif o == '-e':
@@ -1204,9 +1209,14 @@ if __name__ == "__main__":
         # check for input/output file
         if conf['write'] or conf['erase_write'] or conf['read'] or conf['verify']:
             try:
-                args[0]
+                if conf['append']:
+                    conf['fname'] = args[0] + conf['append']
+                else:
+                    conf['fname'] = args[0]
             except:
                 raise Exception('No file path given.')
+            mdebug(5, "Setting filename to %s"
+                   % (conf['fname']))
 
         if (conf['write'] and conf['read']) or (conf['erase_write'] and conf['read']):
             if not (conf['force'] or
@@ -1258,8 +1268,8 @@ if __name__ == "__main__":
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
-            mdebug(5, "Reading data from %s" % args[0])
-            firmware = FirmwareFile(args[0])
+            mdebug(5, "Reading data from %s" % conf['fname'])
+            firmware = FirmwareFile(conf['fname'])
 
         mdebug(5, "Connecting to target...")
 
@@ -1372,7 +1382,7 @@ if __name__ == "__main__":
 
             mdebug(5, "Reading %s bytes starting at address 0x%x"
                    % (length, conf['address']))
-            with open(args[0], 'wb') as f:
+            with open(conf['fname'], 'wb') as f:
                 for i in range(0, length >> 2):
                     # reading 4 bytes at a time
                     rdata = device.read_memory(conf['address'] + (i * 4))
