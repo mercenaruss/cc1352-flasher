@@ -62,6 +62,12 @@ try:
 except ImportError:
     have_hex_support = False
 
+try:
+    import gpiod
+    have_gpiod = True
+except ImportError:
+    have_gpiod = False
+
 # version
 __version__ = "2.1"
 
@@ -217,7 +223,7 @@ class CommandInterface(object):
 
         self.sp.open()
 
-    def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False, send_break=False):
+    def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False, send_break=False, gpio=False):
         if send_break:
             # Use send_break on BeagleConnect Freedom to trigger BSL
             mdebug(5, "Sending break")
@@ -269,6 +275,40 @@ class CommandInterface(object):
             # there wasn't enough delay here on Mac.
             time.sleep(0.002)
             set_bootloader_pin(0 if not dtr_active_high else 1)
+
+        if gpio:
+            mdebug(5,'gpio')
+            if !have_gpiod:
+                error_str = "Requested to use gpio, but the gpiod library " \
+                            "could not be imported.\n" \
+                            "Install gpiod in site-packages. " \
+                            "Please see the readme for more details."
+                raise CmdException(error_str)
+                return
+            gpio_pins = parse_gpio(gpio)
+            mdebug(5, "Using GPIO for BOOT (%s %d) and RESET (%s %d) lines."
+                   % gpio_pins)
+            boot_chip = gpiod.Chip(gpio_pins[0], gpiod.Chip.OPEN_BY_NAME)
+            boot_line = boot_chip.get_line(gpio_pins[1])
+            reset_chip = gpiod.Chip(gpio_pins[2], gpiod.Chip.OPEN_BY_NAME)
+            reset_line = reset_chip.get_line(gpio_pins[3])
+            boot_line.request(consumer="cc1352-flasher", type=gpiod.LINE_REQ_DIR_OUT)
+            reset_line.request(consumer="cc1352-flasher", type=gpiod.LINE_REQ_DIR_OUT)
+            mdebug(5,'Setting BOOT and RESET low')
+            boot_line.set_value(0)
+            reset_line.set_value(0)
+            time.sleep(0.2)
+            mdebug(5,'Setting RESET high')
+            reset_line.set_value(1)
+            time.sleep(0.2)
+            mdebug(5,'Setting BOOT high')
+            boot_line.set_value(1)
+            time.sleep(0.2)
+            mdebug(5,'Releasing GPIO lines')
+            boot_line.set_direction_input()
+            reset_line.set_direction_input()
+            boot_line.release()
+            reset_line.release()
 
         # Some boards have a co-processor that detects this sequence here and
         # then drives the main chip's BSL enable and !RESET pins. Depending on
@@ -1075,6 +1115,7 @@ def usage():
     print("""Usage: %s [-DhqVfewvr] [-l length] [-p port] [-b baud] [-a addr]
     [-i addr] [--bootloader-active-high] [--bootloader-invert-lines]
     [--bootloader-sonoff-usb] [--bootloader-send-break]
+    [--gpio bootchip,bootline,resetchip,resetline] [--play]
     [--append .ext] [file.bin]
     -h, --help                   This help
     -q                           Quiet
@@ -1102,6 +1143,8 @@ def usage():
     --bootloader-sonoff-usb      Toggles RTS and DTR in the correct pattern for Sonoff USB dongle
     --bootloader-send-break      Use break signal to enter bootloader
     --bcf                        Quick defaults for BeagleConnect Freedom Zephyr images
+    --play                       Quick defaults for BeaglePlay
+    --gpio chip,line,chip,line   Use on-board GPIO
     -D, --disable-bootloader     After finishing, disable the bootloader
     --version                    Print script version
 
@@ -1133,6 +1176,7 @@ if __name__ == "__main__":
             'bootloader_invert_lines': False,
             'bootloader_sonoff_usb':False,
             'bootloader_send_break': False,
+            'bootloader_gpio': None,
             'disable-bootloader': 0
         }
 
@@ -1142,6 +1186,7 @@ if __name__ == "__main__":
                                    ['help', 'ieee-address=','erase-write=',
                                     'erase-page=',
                                     'append=',
+                                    'gpio=',
                                     'disable-bootloader',
                                     'bootloader-active-high',
                                     'bootloader-invert-lines',
@@ -1208,6 +1253,13 @@ if __name__ == "__main__":
             conf['verify'] = 1
             conf['append'] = '/zephyr/zephyr.bin'
             conf['bootloader_send_break'] = True
+        elif o == '--play':
+            conf['erase'] = 1
+            conf['write'] = 1
+            conf['verify'] = 1
+            conf['gpio'] = 'gpiochip2,13,gpiochip2,14'
+            conf['port'] = '/dev/ttyS4'
+            conf['append'] = '/zephyr/zephyr.bin'
         elif o == '--version':
             print_version()
             sys.exit(0)
