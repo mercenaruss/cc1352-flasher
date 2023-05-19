@@ -42,6 +42,9 @@ It is possible to solder cables to R21 and R22 for flashing using the Serial Boo
 For ITead SONOFF Zigbee 3.0 USB Dongle Plus:
 For the CC2652P based "SONOFF Zigbee 3.0 USB Dongle Plus" (model "ZBDongle-P") adapter from ITead you need to invoke toggle to activate bootloader with `--bootloader-sonoff-usb` if you do not want to open its enclosure to manually start the bootloader with the boot button on the PCB.
 
+For BeagleConnect Freedom:
+The MSP430 USB-to-UART bridge in [BeagleConnect Freedom](https://beagleconnect.org) uses a serial [BREAK](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter#Break_condition) to know when to invoke the CC1352P7 BSL. Use `--bootloader-send-break` to activate the bootloader.
+
 For all the CC13xx and CC26xx families, the ROM bootloader is configured through the `BL_CONFIG` 'register' in CCFG. `BOOTLOADER_ENABLE` should be set to `0xC5` to enable the bootloader in the first place.
 
 This is enough if the chip has not been programmed with a valid image. If a valid image is present, then the remaining fields of `BL_CONFIG` and the `ERASE_CONF` register must also be configured correctly:
@@ -79,6 +82,7 @@ You can find more info on the different options by executing `python cc2538-bsl.
 If you found a bug or improved some part of the code, please submit an issue or pull request.
 
 ##### Authors
+BeagleBoard.org (c) 2023, <discuss@beagleboard.org>
 Jelmer Tiete (c) 2014, <jelmer@tiete.be>   
 Loosly based on [stm32loader] by Ivan A-R <ivan@tuxotronic.org>   
 
