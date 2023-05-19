@@ -1162,6 +1162,8 @@ if __name__ == "__main__":
             conf['bootloader_sonoff_usb'] = True
         elif o == '-D' or o == '--disable-bootloader':
             conf['disable-bootloader'] = 1
+        elif o == '-E' or o == '--erase-page':
+            conf['erase_page'] = str(a)
         elif o == '--version':
             print_version()
             sys.exit(0)
