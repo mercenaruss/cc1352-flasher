@@ -277,8 +277,8 @@ class CommandInterface(object):
             set_bootloader_pin(0 if not dtr_active_high else 1)
 
         if gpio:
-            mdebug(5,'gpio')
-            if !have_gpiod:
+            mdebug(10,'gpio')
+            if not have_gpiod:
                 error_str = "Requested to use gpio, but the gpiod library " \
                             "could not be imported.\n" \
                             "Install gpiod in site-packages. " \
@@ -1076,6 +1076,14 @@ def _parse_range_values(device, values):
         raise ValueError("Supplied range is neither a page or address range")
 
 
+def parse_gpio(gpio):
+    # Needs more validation
+    mdebug(6,"Parsing GPIO pins \"%s\"" % (gpio))
+    gpio_pins = gpio.split(",")
+    gpio_pins = (gpio_pins[0], int(gpio_pins[1]), gpio_pins[2], int(gpio_pins[3]))
+    mdebug(6,"GPIO pins: %s" % repr(gpio_pins))
+    return gpio_pins
+
 def parse_page_address_range(device, pg_range):
     """Convert the address/page range into a start address and byte length"""
     values = pg_range.split(',')
@@ -1193,6 +1201,7 @@ if __name__ == "__main__":
                                     'bootloader-sonoff-usb',
                                     'bootloader-send-break',
                                     'bcf',
+                                    'play',
                                     'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -1257,7 +1266,7 @@ if __name__ == "__main__":
             conf['erase'] = 1
             conf['write'] = 1
             conf['verify'] = 1
-            conf['gpio'] = 'gpiochip2,13,gpiochip2,14'
+            conf['bootloader_gpio'] = 'gpiochip2,13,gpiochip2,14'
             conf['port'] = '/dev/ttyS4'
             conf['append'] = '/zephyr/zephyr.bin'
         elif o == '--version':
@@ -1326,7 +1335,8 @@ if __name__ == "__main__":
         cmd.invoke_bootloader(dtr_active_high=conf['bootloader_active_high'],
                               inverted=conf['bootloader_invert_lines'],
                               sonoff_usb=conf['bootloader_sonoff_usb'],
-                              send_break=conf['bootloader_send_break'])
+                              send_break=conf['bootloader_send_break'],
+                              gpio=conf['bootloader_gpio'])
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
