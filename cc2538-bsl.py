@@ -853,6 +853,15 @@ class CC26xx(Chip):
         elif wafer_id == 0xBB41:
             chip = self._identify_cc13xx(pg_rev, protocols)
             self.page_size = 8192
+        elif wafer_id == 0xBB77:
+            # CC1352P7
+            chip = self._identify_cc13xx(pg_rev, protocols)
+            self.page_size = 8192
+        else:
+            # CC1352P7 TRM (https://www.ti.com/lit/pdf/swcu192) does not specify the SEQUENCE
+            # in table 11-59, so I need an actual device to test it
+            chip = self._identify_cc13xx(pg_rev, protocols)
+            self.page_size = 8192
 
         # Read flash size, calculate and store bootloader disable address
         self.size = self.command_interface.cmdMemReadCC26xx(
@@ -916,18 +925,22 @@ class CC26xx(Chip):
         return "%s %s" % (chip_str, pg_str)
 
     def _identify_cc13xx(self, pg, protocols):
-        chip_str = "CC1310"
+        chip_str = "CC131x"
         if protocols & CC26xx.PROTO_MASK_IEEE == CC26xx.PROTO_MASK_IEEE:
-            chip_str = "CC1350"
+            chip_str = "CC135x"
 
         if pg == 0:
             pg_str = "PG1.0"
+        if pg == 1:
+            pg_str = "PG1.1"
         elif pg == 2 or pg == 3:
             rev_minor = self.command_interface.cmdMemReadCC26xx(
                                                 CC26xx.MISC_CONF_1)[0]
             if rev_minor == 0xFF:
                 rev_minor = 0x00
             pg_str = "PG2.%d" % (rev_minor,)
+        else:
+            pg_str = "PG1.0"
 
         return "%s %s" % (chip_str, pg_str)
 
