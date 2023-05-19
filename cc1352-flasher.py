@@ -1156,6 +1156,7 @@ def usage():
                                  eg: -G gpiochip2,13,gpiochip2,14
     -D, --disable-bootloader     After finishing, disable the bootloader
     --beagleplay                 Enable defaults for BeaglePlay
+    --beagleconnect              Enable defaults for BeagleConnect Freedom
     --version                    Print script version
 
 Examples:
@@ -1203,6 +1204,7 @@ if __name__ == "__main__":
                                     'bootloader-sonoff-usb',
                                     'bootloader-send-break',
                                     'beagleplay',
+                                    'beagleconnect',
                                     'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -1263,6 +1265,11 @@ if __name__ == "__main__":
             conf['verify'] = 1
             conf['bootloader_gpio'] = 'gpiochip2,13,gpiochip2,14'
             conf['port'] = '/dev/ttyS4'
+        elif o == '--beagleconnect':
+            conf['erase'] = 1
+            conf['write'] = 1
+            conf['verify'] = 1
+            conf['bootloader_send_break'] = True
         elif o == '--version':
             print_version()
             sys.exit(0)
