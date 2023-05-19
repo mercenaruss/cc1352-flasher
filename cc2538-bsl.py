@@ -1263,10 +1263,10 @@ if __name__ == "__main__":
 
         cmd = CommandInterface()
         cmd.open(conf['port'], conf['baud'])
-        cmd.invoke_bootloader(conf['bootloader_active_high'],
-                              conf['bootloader_invert_lines'],
-                              conf['bootloader_sonoff_usb']),
-                              conf['bootloader_send_break'])
+        cmd.invoke_bootloader(dtr_active_high=conf['bootloader_active_high'],
+                              inverted=conf['bootloader_invert_lines'],
+                              sonoff_usb=conf['bootloader_sonoff_usb'],
+                              send_break=conf['bootloader_send_break'])
         mdebug(5, "Opening port %(port)s, baud %(baud)d"
                % {'port': conf['port'], 'baud': conf['baud']})
         if conf['write'] or conf['erase_write'] or conf['verify']:
