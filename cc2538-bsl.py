@@ -1124,6 +1124,7 @@ def usage():
     [-i addr] [--bootloader-active-high] [--bootloader-invert-lines]
     [--bootloader-sonoff-usb] [--bootloader-send-break]
     [-G/--bootloader-gpio bootchip,bootline,resetchip,resetline]
+    [--beagleplay]
     [--append .ext] [file.bin]
     -h, --help                   This help
     -q                           Quiet
@@ -1154,6 +1155,7 @@ def usage():
                                  GPIO chip and line definitions for BOOT and RESET
                                  eg: -G gpiochip2,13,gpiochip2,14
     -D, --disable-bootloader     After finishing, disable the bootloader
+    --beagleplay                 Enable defaults for BeaglePlay
     --version                    Print script version
 
 Examples:
@@ -1200,6 +1202,7 @@ if __name__ == "__main__":
                                     'bootloader-invert-lines',
                                     'bootloader-sonoff-usb',
                                     'bootloader-send-break',
+                                    'beagleplay',
                                     'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
@@ -1254,6 +1257,12 @@ if __name__ == "__main__":
             conf['bootloader_gpio'] = str(a)
         elif o == '-D' or o == '--disable-bootloader':
             conf['disable-bootloader'] = 1
+        elif o == '--beagleplay':
+            conf['erase'] = 1
+            conf['write'] = 1
+            conf['verify'] = 1
+            conf['bootloader_gpio'] = 'gpiochip2,13,gpiochip2,14'
+            conf['port'] = '/dev/ttyS4'
         elif o == '--version':
             print_version()
             sys.exit(0)
