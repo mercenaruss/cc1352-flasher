@@ -278,7 +278,7 @@ class CommandInterface(object):
 
         if gpio:
             mdebug(5,'gpio')
-            if !have_gpiod:
+            if not have_gpiod:
                 error_str = "Requested to use gpio, but the gpiod library " \
                             "could not be imported.\n" \
                             "Install gpiod in site-packages. " \
