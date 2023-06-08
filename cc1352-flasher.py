@@ -1115,7 +1115,7 @@ def usage():
     print("""Usage: %s [-DhqVfewvr] [-l length] [-p port] [-b baud] [-a addr]
     [-i addr] [--bootloader-active-high] [--bootloader-invert-lines]
     [--bootloader-sonoff-usb] [--bootloader-send-break]
-    [--gpio bootchip,bootline,resetchip,resetline] [--play]
+    [--bcf] [--gpio bootchip,bootline,resetchip,resetline] [--play]
     [--append .ext] [file.bin]
     -h, --help                   This help
     -q                           Quiet
@@ -1143,7 +1143,7 @@ def usage():
     --bootloader-sonoff-usb      Toggles RTS and DTR in the correct pattern for Sonoff USB dongle
     --bootloader-send-break      Use break signal to enter bootloader
     --bcf                        Quick defaults for BeagleConnect Freedom Zephyr images
-    --play                       Quick defaults for BeaglePlay
+    --play                       Quick defaults for BeaglePlay Zephyr images
     --gpio chip,line,chip,line   Use on-board GPIO
     -D, --disable-bootloader     After finishing, disable the bootloader
     --version                    Print script version
@@ -1193,6 +1193,7 @@ if __name__ == "__main__":
                                     'bootloader-sonoff-usb',
                                     'bootloader-send-break',
                                     'bcf',
+                                    'play',
                                     'version'])
     except getopt.GetoptError as err:
         # print help information and exit:
