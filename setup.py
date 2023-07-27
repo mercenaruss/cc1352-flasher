@@ -2,13 +2,13 @@ from setuptools import setup
 
 
 setup(
-    name="cc2538-bsl",
+    name="cc1352-flasher",
     description="Script to communicate with Texas Instruments CC13xx/CC2538/CC26xx Serial Boot Loader .",
     long_description=open("README.md", encoding="utf-8").read(),
-    keywords="cc2538, cc1310, cc13xx, bootloader, cc26xx, cc2650, cc2640",
-    url="https://github.com/JelmerT/cc2538-bsl",
-    author="Jelmer Tiete",
-    author_email="jelmer@tiete.be",
+    keywords="beagleconnect, cc1352, cc2538, cc1310, cc13xx, bootloader, cc26xx, cc2650, cc2640",
+    url="https://git.beagleboard.org/beagleconnect/cc1352-flasher",
+    author="Jason Kridner",
+    author_email="jkridner@beagleboard.org",
     license="BSD-3-Clause",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -32,5 +32,5 @@ setup(
         '': ["intelhex"],
         'intelhex': ["python-magic"]
     },
-    scripts=["cc2538-bsl.py"],
+    scripts=["cc1352-flasher.py"],
 )
