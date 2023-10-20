@@ -1259,7 +1259,7 @@ if __name__ == "__main__":
             conf['write'] = 1
             conf['verify'] = 1
             conf['gpio'] = 'gpiochip2,13,gpiochip2,14'
-            conf['port'] = '/dev/ttyS4'
+            conf['port'] = '/dev/play/cc1352/uart'
             conf['append'] = '/zephyr/zephyr.bin'
         elif o == '--version':
             print_version()
