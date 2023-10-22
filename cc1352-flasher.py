@@ -1016,10 +1016,14 @@ class CC26xx(Chip):
         return self.command_interface.cmdMemReadCC26xx(addr)
 
 def parse_gpio(gpio):
-    # Needs more validation
     mdebug(6,"Parsing GPIO pins \"%s\"" % (gpio))
-    gpio_pins = gpio.split(",")
-    gpio_pins = (gpio_pins[0], int(gpio_pins[1]), gpio_pins[2], int(gpio_pins[3]))
+    if gpio == 'auto':
+        boot_find = gpiod.find_line("CC1352P7_BOOT")
+        reset_find = gpiod.find_line("CC1352P7_RSTN")
+        gpio_pins = (boot_find.get_chip().name, int(boot_find.offset), reset_find.get_chip().name, int(reset_find.offset))
+    else:
+        gpio_pins = gpio.split(",")
+        gpio_pins = (gpio_pins[0], int(gpio_pins[1]), gpio_pins[2], int(gpio_pins[3]))
     mdebug(6,"GPIO pins: %s" % repr(gpio_pins))
     return gpio_pins
 
@@ -1275,7 +1279,7 @@ if __name__ == "__main__":
             conf['erase'] = 1
             conf['write'] = 1
             conf['verify'] = 1
-            conf['bootloader_gpio'] = 'gpiochip1,13,gpiochip1,14'
+            conf['bootloader_gpio'] = 'auto'
             conf['port'] = '/dev/play/cc1352/uart'
             conf['append'] = '/zephyr/zephyr.bin'
         elif o == '--version':
