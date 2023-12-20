@@ -48,6 +48,7 @@ import os
 import struct
 import binascii
 import traceback
+import socket
 
 try:
     import magic
