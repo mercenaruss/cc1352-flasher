@@ -226,6 +226,8 @@ class CommandInterface(object):
             self.sp.timeout=0.5               # set the timeout value
 
         self.sp.open()
+        if hasattr(self.sp, '_socket'):
+            self.sp._socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
     def invoke_bootloader(self, dtr_active_high=False, inverted=False, sonoff_usb=False, send_break=False, gpio=False):
         if send_break:
